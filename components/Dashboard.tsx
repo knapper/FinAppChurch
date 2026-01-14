@@ -65,8 +65,8 @@ const Dashboard: React.FC<DashboardProps> = ({ incomes, expenses, transfers, bal
         id: inc.id,
         date: inc.date,
         type: 'Income' as const,
-        category: 'Service Revenue',
-        description: inc.serviceName,
+        category: inc.type === 'Service' ? 'Service Revenue' : 'Direct Offering',
+        description: inc.type === 'Service' ? inc.serviceName || '' : inc.donorName || '',
         amount: inc.total,
         account: inc.method === 'Cash' ? 'Cash in Hand' : 'Bank'
       })),
@@ -274,9 +274,16 @@ const Dashboard: React.FC<DashboardProps> = ({ incomes, expenses, transfers, bal
               
               {selectedTx.type === 'Income' && (
                 <div className="space-y-3">
-                  <div className="bg-indigo-50 p-4 rounded-xl">
-                    <p className="text-xs font-bold text-indigo-400 uppercase mb-1">Service Name</p>
-                    <p className="text-lg font-bold text-indigo-900">{selectedTx.data.serviceName}</p>
+                  <div className={`p-4 rounded-xl ${selectedTx.data.type === 'Service' ? 'bg-indigo-50' : 'bg-amber-50'}`}>
+                    <p className={`text-xs font-bold uppercase mb-1 ${selectedTx.data.type === 'Service' ? 'text-indigo-400' : 'text-amber-500'}`}>
+                       {selectedTx.data.type === 'Service' ? 'Service Name' : 'Donor Name'}
+                    </p>
+                    <p className={`text-lg font-bold ${selectedTx.data.type === 'Service' ? 'text-indigo-900' : 'text-amber-900'}`}>
+                       {selectedTx.data.type === 'Service' ? selectedTx.data.serviceName : selectedTx.data.donorName}
+                    </p>
+                    {selectedTx.data.destination && (
+                       <p className="mt-1 text-xs text-amber-600 font-medium italic">Destination: {selectedTx.data.destination}</p>
+                    )}
                   </div>
                   <div className="grid grid-cols-1 gap-2 border-t border-slate-100 pt-3">
                     <div className="flex justify-between">

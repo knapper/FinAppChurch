@@ -159,10 +159,10 @@ const App: React.FC = () => {
   }
 
   return (
-    <div className="min-h-screen flex bg-slate-50 text-slate-900">
+    <div className="min-h-screen flex bg-slate-50 text-slate-900 overflow-hidden">
       {/* Sidebar */}
       <aside className="w-64 bg-slate-900 text-white flex-shrink-0 hidden md:flex flex-col">
-        <div className="p-6">
+        <div className="p-6 pt-10">
           <h1 className="text-xl font-bold flex items-center gap-2">
             <span className="bg-indigo-500 p-1.5 rounded-lg">⛪</span>
             SacredFinance
@@ -179,7 +179,7 @@ const App: React.FC = () => {
             onClick={() => setView('income')}
             className={`w-full flex items-center gap-3 px-4 py-3 rounded-xl transition-colors ${view === 'income' ? 'bg-indigo-600 text-white' : 'text-slate-400 hover:bg-slate-800'}`}
           >
-            Record Service
+            Add Income
           </button>
           <button 
             onClick={() => setView('expense')}
@@ -207,7 +207,7 @@ const App: React.FC = () => {
           </button>
         </nav>
         
-        <div className="p-4 border-t border-slate-800 space-y-4">
+        <div className="p-4 border-t border-slate-800 space-y-4 pb-10">
           <div className="flex items-center gap-3 px-2">
             <div className="w-8 h-8 rounded-full bg-indigo-500 flex items-center justify-center font-bold text-xs">
               {currentUser.username[0].toUpperCase()}
@@ -229,23 +229,23 @@ const App: React.FC = () => {
 
       {/* Main Content */}
       <main className="flex-1 flex flex-col min-w-0">
-        <header className="h-16 bg-white border-b border-slate-200 flex items-center justify-between px-8 sticky top-0 z-20">
-          <h2 className="font-semibold text-slate-800 capitalize">{view.replace('-', ' ')}</h2>
-          <div className="flex items-center gap-6">
-             <div className="text-right">
-              <p className="text-xs text-slate-500 uppercase">Cash in Hand</p>
-              <p className="text-sm font-bold text-emerald-600">${balances.cashInHand.toLocaleString()}</p>
+        <header className="h-16 md:h-16 bg-white border-b border-slate-200 flex items-center justify-between px-6 md:px-8 sticky top-0 z-20">
+          <h2 className="font-semibold text-slate-800 capitalize truncate mr-2">{view.replace('-', ' ')}</h2>
+          <div className="flex items-center gap-4 md:gap-6 flex-shrink-0">
+             <div className="text-right hidden sm:block">
+              <p className="text-[10px] text-slate-500 uppercase font-bold tracking-tighter">Cash</p>
+              <p className="text-xs md:text-sm font-bold text-emerald-600">${balances.cashInHand.toLocaleString()}</p>
             </div>
             <div className="text-right">
-              <p className="text-xs text-slate-500 uppercase">Petty Cash</p>
-              <p className={`text-sm font-bold ${balances.pettyCash > balances.pettyCashLimit * 0.9 ? 'text-rose-500' : 'text-indigo-600'}`}>
-                ${balances.pettyCash.toLocaleString()} / ${balances.pettyCashLimit.toLocaleString()}
+              <p className="text-[10px] text-slate-500 uppercase font-bold tracking-tighter">Petty</p>
+              <p className={`text-xs md:text-sm font-bold ${balances.pettyCash > balances.pettyCashLimit * 0.9 ? 'text-rose-500' : 'text-indigo-600'}`}>
+                ${balances.pettyCash.toLocaleString()}
               </p>
             </div>
           </div>
         </header>
 
-        <div className="p-8 overflow-y-auto">
+        <div className="flex-1 p-4 md:p-8 overflow-y-auto no-scrollbar pb-24 md:pb-8">
           {view === 'dashboard' && <Dashboard incomes={incomes} expenses={expenses} transfers={transfers} balances={balances} />}
           {view === 'income' && <RecordIncome onSave={handleSaveIncome} incomes={incomes} />}
           {view === 'expense' && <RecordExpense onSave={handleSaveExpense} expenses={expenses} balances={balances} />}
@@ -265,15 +265,21 @@ const App: React.FC = () => {
         </div>
       </main>
       
-      {/* Mobile Navigation */}
-      <div className="md:hidden fixed bottom-0 left-0 right-0 bg-white border-t border-slate-200 flex justify-around p-3 z-30 shadow-2xl">
-        <button onClick={() => setView('dashboard')} className={`p-2 rounded-lg ${view === 'dashboard' ? 'text-indigo-600' : 'text-slate-400'}`}>
+      {/* Mobile Navigation - Enhanced with safe area padding */}
+      <div className="md:hidden fixed bottom-0 left-0 right-0 bg-white border-t border-slate-200 flex justify-around p-3 z-30 shadow-[0_-10px_20px_-5px_rgba(0,0,0,0.05)] pb-[calc(12px+var(--sab))]">
+        <button onClick={() => setView('dashboard')} className={`p-3 rounded-xl transition-all ${view === 'dashboard' ? 'bg-indigo-50 text-indigo-600' : 'text-slate-400'}`}>
           <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M3 12l2-2m0 0l7-7 7 7M5 10v10a1 1 0 001 1h3m10-11l2 2m-2-2v10a1 1 0 01-1 1h-3m-6 0a1 1 0 001-1v-4a1 1 0 011-1h2a1 1 0 011 1v4a1 1 0 001 1m-6 0h6" /></svg>
         </button>
-        <button onClick={() => setView('management')} className={`p-2 rounded-lg ${view === 'management' ? 'text-indigo-600' : 'text-slate-400'}`}>
+        <button onClick={() => setView('income')} className={`p-3 rounded-xl transition-all ${view === 'income' ? 'bg-indigo-50 text-indigo-600' : 'text-slate-400'}`}>
+          <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M12 6v6m0 0v6m0-6h6m-6 0H6" /></svg>
+        </button>
+        <button onClick={() => setView('expense')} className={`p-3 rounded-xl transition-all ${view === 'expense' ? 'bg-indigo-50 text-indigo-600' : 'text-slate-400'}`}>
+           <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M15 12H9m12 0a9 9 0 11-18 0 9 9 0 0118 0z" /></svg>
+        </button>
+        <button onClick={() => setView('management')} className={`p-3 rounded-xl transition-all ${view === 'management' ? 'bg-indigo-50 text-indigo-600' : 'text-slate-400'}`}>
           <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M10.325 4.317c.426-1.756 2.924-1.756 3.35 0a1.724 1.724 0 002.573 1.066c1.543-.94 3.31.826 2.37 2.37a1.724 1.724 0 001.065 2.572c1.756.426 1.756 2.924 0 3.35a1.724 1.724 0 00-1.066 2.573c.94 1.543-.826 3.31-2.37 2.37a1.724 1.724 0 00-2.572 1.065c-.426 1.756-2.924 1.756-3.35 0a1.724 1.724 0 00-2.573-1.066c-1.543.94-3.31-.826-2.37-2.37a1.724 1.724 0 00-1.065-2.572c-1.756-.426-1.756-2.924 0-3.35a1.724 1.724 0 001.066-2.573c-.94-1.543.826-3.31 2.37-2.37.996.608 2.296.07 2.572-1.065z" /><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" /></svg>
         </button>
-        <button onClick={handleLogout} className="p-2 text-rose-500 rounded-lg">
+        <button onClick={handleLogout} className="p-3 text-rose-500 rounded-xl">
           <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M17 16l4-4m0 0l-4-4m4 4H7m6 4v1a3 3 0 01-3 3H6a3 3 0 01-3-3V7a3 3 0 013-3h4a3 3 0 013 3v1" /></svg>
         </button>
       </div>

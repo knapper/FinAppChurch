@@ -35,7 +35,10 @@ export interface IncomeRecord {
   id: string;
   date: string;
   time: string;
-  serviceName: string;
+  type: 'Service' | 'Direct';
+  serviceName?: string;
+  donorName?: string;
+  destination?: string;
   offerings: number;
   tithes: number;
   donations: number;
