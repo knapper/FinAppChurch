@@ -1,7 +1,6 @@
 
 import React, { useState } from 'react';
 import { MonthlyClosing, IncomeRecord, ExpenseRecord, PaymentMethod } from '../types';
-import { getFinancialInsights } from '../services/geminiService';
 
 interface MonthlyClosingViewProps {
   incomes: IncomeRecord[];
@@ -11,8 +10,6 @@ interface MonthlyClosingViewProps {
 type ReportType = 'Income' | 'Expenses';
 
 const MonthlyClosingView: React.FC<MonthlyClosingViewProps> = ({ incomes, expenses }) => {
-  const [insights, setInsights] = useState<string>("");
-  const [loading, setLoading] = useState<boolean>(false);
   const [isPrinting, setIsPrinting] = useState<boolean>(false);
   
   // Report Generator State
@@ -28,21 +25,6 @@ const MonthlyClosingView: React.FC<MonthlyClosingViewProps> = ({ incomes, expens
   const totalIncome = incomes.reduce((sum, i) => sum + i.total, 0);
   const totalExpenses = expenses.reduce((sum, e) => sum + e.amount, 0);
   const net = totalIncome - totalExpenses;
-
-  const handleGenerateInsights = async () => {
-    setLoading(true);
-    const data: MonthlyClosing = {
-      month: new Date().toLocaleString('default', { month: 'long', year: 'numeric' }),
-      totalIncome,
-      totalExpenses,
-      netBalance: net,
-      incomeByService: incomes,
-      expensesByService: expenses
-    };
-    const response = await getFinancialInsights(data);
-    setInsights(response || "Insights generation failed.");
-    setLoading(false);
-  };
 
   const generateReport = () => {
     let results: any[] = [];
@@ -77,13 +59,9 @@ const MonthlyClosingView: React.FC<MonthlyClosingViewProps> = ({ incomes, expens
 
     setIsPrinting(true);
 
-    // Create a temporary hidden iframe for printing
     const iframe = document.createElement('iframe');
-    
-    // Set sandbox BEFORE appending to body to ensure allow-modals is registered correctly
     iframe.setAttribute('sandbox', 'allow-modals allow-scripts allow-same-origin');
     
-    // Visibility and positioning
     Object.assign(iframe.style, {
       position: 'fixed',
       right: '0',
@@ -99,7 +77,6 @@ const MonthlyClosingView: React.FC<MonthlyClosingViewProps> = ({ incomes, expens
       .map(style => style.outerHTML)
       .join('');
 
-    // Construct the document content for srcdoc
     const content = `
       <!DOCTYPE html>
       <html>
@@ -122,7 +99,6 @@ const MonthlyClosingView: React.FC<MonthlyClosingViewProps> = ({ incomes, expens
           </div>
           <script>
             window.onload = function() {
-              // Ensure layout and styles are settled
               setTimeout(function() {
                 try {
                   window.print();
@@ -137,11 +113,8 @@ const MonthlyClosingView: React.FC<MonthlyClosingViewProps> = ({ incomes, expens
     `;
 
     document.body.appendChild(iframe);
-    
-    // Using srcdoc is more reliable than doc.write for sandboxed iframes
     iframe.srcdoc = content;
 
-    // Cleanup logic: Remove the iframe when focus returns to the main window
     const cleanup = () => {
       setTimeout(() => {
         if (document.body.contains(iframe)) {
@@ -154,7 +127,6 @@ const MonthlyClosingView: React.FC<MonthlyClosingViewProps> = ({ incomes, expens
 
     window.addEventListener('focus', cleanup);
     
-    // Safety fallback cleanup
     setTimeout(() => {
       if (document.body.contains(iframe)) {
         document.body.removeChild(iframe);
@@ -195,47 +167,6 @@ const MonthlyClosingView: React.FC<MonthlyClosingViewProps> = ({ incomes, expens
           </div>
         </div>
         <div className="absolute top-0 right-0 w-96 h-96 bg-indigo-500/20 rounded-full -translate-y-32 translate-x-32 blur-3xl" />
-      </div>
-
-      {/* AI Insights Card */}
-      <div className="bg-white p-8 rounded-[2rem] shadow-xl border border-slate-100 print:hidden">
-        <div className="flex items-center justify-between mb-8">
-          <div>
-            <h3 className="text-2xl font-black text-slate-800">AI Financial Counselor</h3>
-            <p className="text-slate-500 text-sm mt-1">Intelligent analysis based on current month performance</p>
-          </div>
-          <button 
-            onClick={handleGenerateInsights}
-            disabled={loading}
-            className="px-6 py-3 bg-indigo-600 hover:bg-indigo-700 text-white rounded-2xl disabled:opacity-50 transition-all flex items-center gap-3 font-bold shadow-lg shadow-indigo-100 active:scale-95"
-          >
-            {loading ? (
-              <div className="flex items-center gap-2">
-                <div className="w-5 h-5 border-2 border-white border-t-transparent rounded-full animate-spin" />
-                Processing...
-              </div>
-            ) : (
-              <div className="flex items-center gap-2">
-                <span>✨</span>
-                Generate Insights
-              </div>
-            )}
-          </button>
-        </div>
-        
-        {insights ? (
-          <div className="bg-indigo-50/50 p-8 rounded-3xl border border-indigo-100 text-slate-700 leading-relaxed italic animate-in fade-in duration-500">
-            <div className="flex gap-4">
-              <span className="text-4xl text-indigo-300">"</span>
-              <p className="text-lg font-medium">{insights}</p>
-            </div>
-          </div>
-        ) : (
-          <div className="text-center py-16 text-slate-400 border-4 border-dashed border-slate-50 rounded-[2rem] bg-slate-50/20">
-            <div className="text-4xl mb-4">🧠</div>
-            <p className="font-bold">Request a health report to see detailed AI recommendations.</p>
-          </div>
-        )}
       </div>
 
       {/* Report Generator Section */}
@@ -364,7 +295,6 @@ const MonthlyClosingView: React.FC<MonthlyClosingViewProps> = ({ incomes, expens
             </div>
 
             <div id="printable-report">
-              {/* Report Letterhead - Only shows in print/PDF */}
               <div className="hidden print:block mb-10 border-b-2 border-slate-900 pb-6">
                 <div className="flex justify-between items-end">
                   <div>
@@ -436,7 +366,6 @@ const MonthlyClosingView: React.FC<MonthlyClosingViewProps> = ({ incomes, expens
                 </table>
               </div>
 
-              {/* PDF Signatures Footer */}
               <div className="hidden print:block mt-32">
                 <div className="grid grid-cols-2 gap-32">
                   <div className="text-center">
@@ -449,7 +378,7 @@ const MonthlyClosingView: React.FC<MonthlyClosingViewProps> = ({ incomes, expens
                   </div>
                 </div>
                 <div className="mt-20 text-center text-[8px] text-slate-300 font-bold uppercase tracking-widest">
-                  SacredFinance Official Audit Document • Protected by AI Insights
+                  SacredFinance Official Audit Document
                 </div>
               </div>
             </div>

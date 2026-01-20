@@ -30,7 +30,7 @@ const Login: React.FC<LoginProps> = ({ onLogin, users }) => {
             <span className="text-4xl">⛪</span>
           </div>
           <h1 className="text-3xl font-bold text-slate-900">SacredFinance</h1>
-          <p className="text-slate-500 mt-2">Sign in to manage your church funds</p>
+          <p className="text-slate-500 mt-2">Sign in to manage your church funds. Use root/1234</p>
         </div>
 
         <form onSubmit={handleLogin} className="p-8 pt-0 space-y-6">

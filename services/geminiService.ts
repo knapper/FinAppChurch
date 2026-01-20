@@ -2,12 +2,26 @@
 import { GoogleGenAI } from "@google/genai";
 import { MonthlyClosing } from "../types";
 
-// Initialize the Gemini API client using the environment variable for the API key.
-const ai = new GoogleGenAI({ apiKey: process.env.API_KEY });
+// The API key must be obtained exclusively from the environment variable process.env.API_KEY.
+// We use a safe access pattern to prevent ReferenceErrors in non-Node environments (like standard browsers).
+const getApiKey = () => {
+  try {
+    return process.env.API_KEY;
+  } catch (e) {
+    return undefined;
+  }
+};
+
+const apiKey = getApiKey();
+const ai = apiKey ? new GoogleGenAI({ apiKey }) : null;
 
 export const getFinancialInsights = async (closingData: MonthlyClosing) => {
+  if (!ai) {
+    console.warn("Gemini API client not initialized. Check your API_KEY environment variable.");
+    return "AI Insights are currently unavailable. Please ensure your API key is configured.";
+  }
+
   try {
-    // Generate financial insights based on the provided monthly closing data.
     const response = await ai.models.generateContent({
       model: "gemini-3-flash-preview",
       contents: `Provide a concise financial health summary for our church for the month of ${closingData.month}. 
@@ -19,7 +33,7 @@ export const getFinancialInsights = async (closingData: MonthlyClosing) => {
         temperature: 0.7,
       }
     });
-    // Access the generated text content from the response object.
+    
     return response.text;
   } catch (error) {
     console.error("Error fetching Gemini insights:", error);

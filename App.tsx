@@ -92,8 +92,10 @@ const App: React.FC = () => {
   };
 
   const handleLogout = () => {
-    setCurrentUser(null);
-    setView('dashboard');
+    if (window.confirm("Are you sure you want to sign out?")) {
+      setCurrentUser(null);
+      setView('dashboard');
+    }
   };
 
   const handleSaveIncome = (record: IncomeRecord) => {
